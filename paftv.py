@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 
 # This is a sample Python script.
@@ -221,7 +221,8 @@ if __name__ == '__main__':
         "-p",
         "--paf",
         metavar="paf",
-        help="Alignment file in paf format"
+        help="Alignment file in paf format",
+        required=True
     )
 
     parser.add_argument(
@@ -230,8 +231,10 @@ if __name__ == '__main__':
         metavar="query.fa",
         nargs='+',
         help="FASTA file of query sequence(s). This argument can instead take a single file of file names containing "
-             "paths relative to the working directory."
+             "paths relative to the working directory.",
+        required = True
     )
+
     parser.add_argument(
         "-r",
         "--region",
@@ -268,8 +271,10 @@ if __name__ == '__main__':
         default=0.0
     )
     parser.add_argument(
+        "-o",
         "--output",
         help="Output name",
+        required=True,
     )
 
     args = parser.parse_args()
@@ -333,7 +338,7 @@ if __name__ == '__main__':
     # Leave it like it is
     a = ali_tv.get_json(indent=1)
 
-    with open("/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/s_size/s200000.paf321312.json", "w") as l:
+    with open(args.output, "w") as l:
         l.write(a)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
