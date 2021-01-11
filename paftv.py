@@ -299,7 +299,7 @@ if __name__ == '__main__':
 
 
     if len(args.query) == 1:
-        print("Please redo - only one query argument")
+        print("Please redo - more than one query required ")
 
     i = tuple([Path(x) for x in args.query])
     fasta_files = [FASTAFile(x) for x in i]
