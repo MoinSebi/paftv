@@ -12,6 +12,7 @@ import logging
 from enum import Enum
 from pathlib import Path
 from Bio import SeqIO
+import argparse
 
 
 
@@ -209,9 +210,73 @@ class Strand(Enum):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    ##Parser
+    parser = argparse.ArgumentParser();
+
+    parser.add_argument(
+        "-p",
+        "--paf",
+        metavar="paf",
+        help="Alignment file in paf format"
+    )
+
+    parser.add_argument(
+        "-q",
+        "--query",
+        metavar="query.fa",
+        nargs='+',
+        help="FASTA file of query sequence(s). This argument can instead take a single file of file names containing "
+             "paths relative to the working directory."
+    )
+    parser.add_argument(
+        "-r",
+        "--region",
+        help="Bounds of region to view, in standard samtools region format (refSeqID:start-end)"
+    )
+
+    parser.add_argument(
+        "--min_link_identity",
+        help="Minimum link identity for AliTV to initially display",
+        type=float,
+        default=0.0
+    )
+
+    parser.add_argument(
+        "--min_link_length",
+        help="Minimum link length for AliTV to initially display",
+        type=int,
+        default=0
+    )
+
+    parser.add_argument(
+        "--min_aln_cov",
+        help="Minimum percent coverage, from 0 to 100, by alignments that a sequence needs to be initially visible in "
+             "AliTV.",
+        type=float,
+        default=0.0
+    )
+
+    parser.add_argument(
+        "--min_ref_cov",
+        help="Minimum percent coverage, from 0 to 100, of a query sequence by alignments to the reference needed for"
+             "the query sequence to be initially visible in AliTV.",
+        type=float,
+        default=0.0
+    )
+    parser.add_argument(
+        "--output",
+        help="Output name",
+    )
+
+    args = parser.parse_args()
+
+
+
     alignment_groups = {}
     a1 = {};
-    u = "/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/s_size/s200000.paf"
+    u = args.paf
+
     with open(u) as f:
 
         for line1 in f.readlines():
@@ -227,24 +292,33 @@ if __name__ == '__main__':
                 #print(line)
 
     for k,v in a1.items():
-        #print(len(v))
         alignment_groups[k] = parse_output_minimap2(v)
 
     #print(len(alignment_groups))
 
 
 
+    if len(args.query) == 1:
+        print("Please redo - only one query argument")
 
-
-    u2 = "/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/ath/1741_KBS-Mac-74_1741_3Cells_Chr1.fasta"
-    u3 = "/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/ath/6966_Sq-1-6966_Chr1.fasta"
-    i = tuple([Path(x) for x in [u2,u3]])
+    i = tuple([Path(x) for x in args.query])
     fasta_files = [FASTAFile(x) for x in i]
 
 
     ali_tv = alitv.AliTV(fasta_files)
 
     ali_tv.load_links(alignment_groups)
+
+    ali_tv.set_soft_filters(args.min_link_identity, args.min_link_length)
+
+    if args.min_aln_cov:
+        logging.info('Hiding chromosomes by alignment coverage')
+        ali_tv.hide_chromosomes_by_alignment_coverage(args.min_aln_cov)
+
+    if args.min_ref_cov:
+        logging.info('Hiding chromosomes by reference alignment coverage')
+        ali_tv.hide_chromosomes_by_reference_coverage(args.min_ref_cov)
+
     ali_tv.order_and_orient_sequences(alignment_groups)
 
 
@@ -252,9 +326,11 @@ if __name__ == '__main__':
 
     #logging.info('Generating JSON output')
 
+
+    # Leave it like it is
     a = ali_tv.get_json(indent=1)
 
-    with open("/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/s_size/s200000.paf.json", "w") as l:
+    with open("/home/svorbrugg_local/work/mpi/tmp/experimental/ds1/edyeet/s_size/s200000.paf321312.json", "w") as l:
         l.write(a)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

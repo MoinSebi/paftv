@@ -7,7 +7,7 @@ from collections import defaultdict
 import itertools
 import json
 import logging
-from main import Strand
+from paftv import Strand
 
 
 def rec_dd():

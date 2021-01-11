@@ -1,4 +1,10 @@
 # paftv
 
-This is a fork form https://github.com/weigelworld/minitv. Now possible to use your own alignmend in the PAF format. It's easy and clean. 
+This is a fork form https://github.com/weigelworld/minitv.  
+It is now now possible to use your own alignment in the PAF format. 
+
+Usage: 
+- git clone https://github.com/MoinSebi/paftv/tree/master
+- paftv 
+ 
 
