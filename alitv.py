@@ -363,6 +363,8 @@ class AliTV:
 
         # populate links
         genome_pairs = tuple(itertools.combinations(self.genomes, r=2))
+        genome_pairs = tuple([sorted(x, key=lambda y: y.id) for x in genome_pairs])
+        print([x[0].id for x in genome_pairs])
         for genome_pair in genome_pairs:
             target_genome = genome_pair[0]
             query_genome = genome_pair[1]
