@@ -214,9 +214,7 @@ class Strand(Enum):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    ##Parser
     parser = argparse.ArgumentParser();
-
     parser.add_argument(
         "-p",
         "--paf",
@@ -287,86 +285,91 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
+    
+    #Make a fasta file list
+    
 
-    if len(args.query) == 1:
-        print("Please redo - more than one query required ")
+    paths = tuple([Path(x) for x in args.query])
+    fasta_files = [FASTAFile(x) for x in paths]
 
-    i = tuple([Path(x) for x in args.query])
-    fasta_files = [FASTAFile(x) for x in i]
-
+    
     alignment_groups = {}
-    a1 = {}
+    alignment_lists = {}                    #This one saves the alignments in the same style as alignment groups, but holds a list of strings (lines) as values
     paf = args.paf
 
-
+    # Ignore this one for the moment (working with workaround)
     if args.allvsall:
         if len(fasta_files) != 1:
             print("not working")
 
         else:
-            fasta_files.append(FASTAFile(Path(args.query[0])))
+            p = FASTAFile(Path(args.query[0]))
+            for x in p.records:
+                x.name = x.name + "_1"
+                x.id = x.id + "_1"
+            p.name = p.name +"_1"
+            for x in p.records:
+                print(x.name)
+            fasta_files.append(p)
+
             with open(paf) as f:
 
                 for line1 in f.readlines():
                     split_line = line1.rstrip().split("\t")
-                    # print(a1.get((split_line[5], split_line[0])))
-                    if a1.get((fasta_files[0].name, fasta_files[1].name)) != None:
+                    # print(alignment_lists.get((split_line[5], split_line[0])))
+                    if alignment_lists.get((fasta_files[0].name, fasta_files[1].name)) != None:
                         # print(line1.rstrip(),
-                        a1[fasta_files[0].name, fasta_files[1].name].append(line1.rstrip())
+                        alignment_lists[fasta_files[0].name, fasta_files[1].name].append(line1.rstrip())
                     else:
                         # print(len(line1))
-                        a1[fasta_files[0].name, fasta_files[1].name] = [line1.rstrip()]
-            for k, v in a1.items():
+                        alignment_lists[fasta_files[0].name, fasta_files[1].name] = [line1.rstrip()]
+            print("easdsja")
+            print(len(alignment_lists))
+            for k, v in alignment_lists.items():
+                print("htis is k {}".format(k))
                 alignment_groups[k] = parse_output_minimap2(v)
+    #
+
+
     else:
-        f2 = itertools.combinations(fasta_files, r=2)
-        f2 = list(f2)
-        #print([(x.path) for x,y in list(f2)])
-        f3 =[]
-
-        for x,y in f2:
-            o = [x.path, y.path]
-            small = o.index(min(o))
-            big = o.index(max(o))
-
-        print([x for x in f2])
-        print([sorted(x, key = lambda y: y.path) for x in f2])
-        f2 = [sorted(x, key = lambda y: y.path) for x in f2]
-        print(f2)
+        '''
+        Dict[entry] --> Fasta file
+        '''
 
         # alignment group in with this seq copy
         # dict eintrag --> alignmentgroup
 
-        d = dict()
-        o10 = []
+        # entry2fasta
+        entry2fasta = dict()
+        entrycheck = []
         for x in fasta_files:
             for y in x.records:
                 print(y.id)
-                o10.append(x)
+                entrycheck.append(x)
                 print(x)
-                d[y.id] = x.name
-        if len(o10) != len(set(o10)):
-            print("WRONG")
+                entry2fasta[y.id] = x.name
+
+        # Check if we have double entry -> I
+        if len(entrycheck) != len(set(entrycheck)):
+            print("Duplicated fasta entries")
+
+
+        all_combinations = set()
         with open(paf) as f:
 
             for line1 in f.readlines():
                 split_line = line1.rstrip().split("\t")
-                # print(a1.get((split_line[5], split_line[0])))
-                one = d[split_line[5]]
-                tow = d[split_line[0]]
-                key = tuple(sorted((one,tow)))
-                #print(key)
-                if a1.get(key) != None:
-                    # print(line1.rstrip(),
-                    a1[key].append(line1.rstrip())
+                # print(alignment_lists.get((split_line[5], split_line[0])))
+                query = entry2fasta[split_line[0]]
+                target = entry2fasta[split_line[5]]
+                all_combinations.add((target, query))
+                if alignment_lists.get((target, query)) != None:
+                    alignment_lists[(target, query)].append(line1.rstrip())
                 else:
-                    # print(len(line1))
-                    a1[key] = [line1.rstrip()]
+                    alignment_lists[(target, query)] = [line1.rstrip()]
 
-        for x,y in f2:
-            alignment_groups[(x.name,y.name)] = []
-            print(x.name, y.name)
-        for k, v in a1.items():
+
+        for k, v in alignment_lists.items():
             print("this is k {}".format(k))
             alignment_groups[k] = parse_output_minimap2(v)
 
@@ -377,6 +380,7 @@ if __name__ == '__main__':
 
 
 
+    ## DONT CHANGE ANYTHING HERE
     ali_tv = alitv.AliTV(fasta_files)
 
     ali_tv.load_links(alignment_groups)
