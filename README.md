@@ -12,5 +12,8 @@ Usage:
 - added flags
     - -p paf file
     - -q --query query files 
+    
+    
+Load the resulting JSON here: https://alitvteam.github.io/AliTV/d3/AliTV.html
  
 

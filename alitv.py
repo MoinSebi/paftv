@@ -371,18 +371,21 @@ class AliTV:
         ## REDO THIS
         ##TODO
         
-        genome_pairs = tuple(itertools.combinations(self.genomes, r=2))
-        genome_pairs = tuple([sorted(x, key=lambda y: y.id) for x in genome_pairs])
+        #genome_pairs = tuple(itertools.combinations(self.genomes, r=2))
+
 
         genome_pairs = []
         tar = None
         que = None
+
         for key, value in alignment_groups.items():
             for x in self.genomes:
                 if key[0] == x.id:
                     tar = x
-                elif key[1] == x.id:
+                    print(key[0])
+                if key[1] == x.id:
                     que = x
+                    print(key[1])
             genome_pairs.append((tar, que))
 
         genome_pairs = tuple(genome_pairs)
@@ -399,15 +402,7 @@ class AliTV:
             query_genome = genome_pair[1]
             alignment_group = alignment_groups[target_genome.fasta.name, query_genome.fasta.name]
             for alignment in alignment_group:
-                print("djaskdjaskda")
-                print(alignment.target_name)
-                print(alignment.query_name)
-                for x in target_genome.chromosomes:
-                    print(x.name)
                 target_chromosome = target_genome.get_chromosome_by_name(alignment.target_name)
-                print("djaskdjaskda")
-                print(alignment.target_name)
-                print(alignment.query_name)
                 query_chromosome = query_genome.get_chromosome_by_name(alignment.query_name)
 
                 query_block_id = "b{}".format(str(len(self.features)))

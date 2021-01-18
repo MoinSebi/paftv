@@ -336,10 +336,6 @@ if __name__ == '__main__':
         Dict[entry] --> Fasta file
         '''
 
-        # alignment group in with this seq copy
-        # dict eintrag --> alignmentgroup
-
-        # entry2fasta
         entry2fasta = dict()
         entrycheck = []
         for x in fasta_files:
@@ -362,11 +358,15 @@ if __name__ == '__main__':
                 # print(alignment_lists.get((split_line[5], split_line[0])))
                 query = entry2fasta[split_line[0]]
                 target = entry2fasta[split_line[5]]
+
                 all_combinations.add((target, query))
-                if alignment_lists.get((target, query)) != None:
-                    alignment_lists[(target, query)].append(line1.rstrip())
+                if query == target:
+                    print("same")
                 else:
-                    alignment_lists[(target, query)] = [line1.rstrip()]
+                    if alignment_lists.get((target, query)) != None:
+                        alignment_lists[(target, query)].append(line1.rstrip())
+                    else:
+                        alignment_lists[(target, query)] = [line1.rstrip()]
 
 
         for k, v in alignment_lists.items():
@@ -395,7 +395,7 @@ if __name__ == '__main__':
         logging.info('Hiding chromosomes by reference alignment coverage')
         ali_tv.hide_chromosomes_by_reference_coverage(args.min_ref_cov)
 
-    ali_tv.order_and_orient_sequences(alignment_groups)
+    #ali_tv.order_and_orient_sequences(alignment_groups)
 
 
     ali_tv.optimize_configuration()
