@@ -304,26 +304,34 @@ if __name__ == '__main__':
 
         else:
             p = FASTAFile(Path(args.query[0]))
+            p.name = p.name + "_1"
             for x in p.records:
                 x.name = x.name + "_1"
                 x.id = x.id + "_1"
-            p.name = p.name +"_1"
+            print('Record name')
+            print(p.name)
             for x in p.records:
                 print(x.name)
+            print()
             fasta_files.append(p)
 
             with open(paf) as f:
 
                 for line1 in f.readlines():
                     split_line = line1.rstrip().split("\t")
+                    split_line[0] = split_line[0] + "_1"
+                    line2 = "\t".join(split_line)
+                    print("new")
+                    print(line1)
+                    print(line2)
                     # print(alignment_lists.get((split_line[5], split_line[0])))
                     if alignment_lists.get((fasta_files[0].name, fasta_files[1].name)) != None:
                         # print(line1.rstrip(),
-                        alignment_lists[fasta_files[0].name, fasta_files[1].name].append(line1.rstrip())
+                        alignment_lists[fasta_files[0].name, fasta_files[1].name].append(line2.rstrip())
                     else:
                         # print(len(line1))
-                        alignment_lists[fasta_files[0].name, fasta_files[1].name] = [line1.rstrip()]
-            print("easdsja")
+                        alignment_lists[fasta_files[0].name, fasta_files[1].name]  = [line2.rstrip()]
+            print("How many alignments")
             print(len(alignment_lists))
             for k, v in alignment_lists.items():
                 print("htis is k {}".format(k))

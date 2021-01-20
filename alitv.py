@@ -362,10 +362,7 @@ class AliTV:
         """
 
         # populate links
-        for x in self.genomes[0].chromosomes:
-            #+x.name = x.name + "_1"
-            #x.id = x.id + "_1"
-            pass;
+
 
 
         ## REDO THIS
@@ -379,13 +376,21 @@ class AliTV:
         que = None
 
         for key, value in alignment_groups.items():
+            print(key)
+
             for x in self.genomes:
+                print("kezs")
+                print(key[0])
+                print(key[1])
+                print(x.id)
                 if key[0] == x.id:
+                    print(key)
                     tar = x
                     print(key[0])
                 if key[1] == x.id:
                     que = x
                     print(key[1])
+                    print(x)
             genome_pairs.append((tar, que))
 
         genome_pairs = tuple(genome_pairs)
@@ -393,8 +398,11 @@ class AliTV:
         print(len(self.genomes))
         print("genomes")
         for x in self.genomes:
+            print(x.id)
             for y in x.chromosomes:
                 print(y.id)
+        print(len(genome_pairs))
+        print(genome_pairs)
 
         print([x[0].id for x in genome_pairs])
         for genome_pair in genome_pairs:
