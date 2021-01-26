@@ -285,10 +285,9 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    
-    #Make a fasta file list
-    
 
+
+    #Make a fasta file list
     paths = tuple([Path(x) for x in args.query])
     fasta_files = [FASTAFile(x) for x in paths]
 
@@ -297,22 +296,17 @@ if __name__ == '__main__':
     alignment_lists = {}                    #This one saves the alignments in the same style as alignment groups, but holds a list of strings (lines) as values
     paf = args.paf
 
-    # Ignore this one for the moment (working with workaround)
+
     if args.allvsall:
         if len(fasta_files) != 1:
-            print("not working")
-
+            print("Only provide one fasta file with the -X flag")
+            sys.exit()
         else:
             p = FASTAFile(Path(args.query[0]))
             p.name = p.name + "_1"
             for x in p.records:
                 x.name = x.name + "_1"
                 x.id = x.id + "_1"
-            print('Record name')
-            print(p.name)
-            for x in p.records:
-                print(x.name)
-            print()
             fasta_files.append(p)
 
             with open(paf) as f:
@@ -321,9 +315,6 @@ if __name__ == '__main__':
                     split_line = line1.rstrip().split("\t")
                     split_line[0] = split_line[0] + "_1"
                     line2 = "\t".join(split_line)
-                    print("new")
-                    print(line1)
-                    print(line2)
                     # print(alignment_lists.get((split_line[5], split_line[0])))
                     if alignment_lists.get((fasta_files[0].name, fasta_files[1].name)) != None:
                         # print(line1.rstrip(),
@@ -331,31 +322,32 @@ if __name__ == '__main__':
                     else:
                         # print(len(line1))
                         alignment_lists[fasta_files[0].name, fasta_files[1].name]  = [line2.rstrip()]
-            print("How many alignments")
-            print(len(alignment_lists))
             for k, v in alignment_lists.items():
-                print("htis is k {}".format(k))
                 alignment_groups[k] = parse_output_minimap2(v)
+
+
+
     #
 
 
     else:
         '''
+        # This is to find the right FASTA file afterwards
         Dict[entry] --> Fasta file
+        
         '''
 
         entry2fasta = dict()
         entrycheck = []
         for x in fasta_files:
             for y in x.records:
-                print(y.id)
                 entrycheck.append(x)
-                print(x)
                 entry2fasta[y.id] = x.name
 
         # Check if we have double entry -> I
         if len(entrycheck) != len(set(entrycheck)):
             print("Duplicated fasta entries")
+
 
 
         all_combinations = set()
@@ -368,8 +360,10 @@ if __name__ == '__main__':
                 target = entry2fasta[split_line[5]]
 
                 all_combinations.add((target, query))
+
+                # Sort out self alignments
                 if query == target:
-                    print("same")
+                    continue;
                 else:
                     if alignment_lists.get((target, query)) != None:
                         alignment_lists[(target, query)].append(line1.rstrip())
@@ -378,18 +372,22 @@ if __name__ == '__main__':
 
 
         for k, v in alignment_lists.items():
-            print("this is k {}".format(k))
             alignment_groups[k] = parse_output_minimap2(v)
 
-    #print(len(alignment_groups))
 
 
-
-
+    minId = 100
+    maxID = 0
+    for k,v in alignment_groups.items():
+        for x in v:
+            if minId > x.identity:
+                minId = x.identity
+            if maxID < x.identity:
+                maxID = x.identity
 
 
     ## DONT CHANGE ANYTHING HERE
-    ali_tv = alitv.AliTV(fasta_files)
+    ali_tv = alitv.AliTV(fasta_files, minId, maxID)
 
     ali_tv.load_links(alignment_groups)
 

@@ -177,7 +177,7 @@ class AliTV:
     Represents the AliTV application.
     """
 
-    def __init__(self, fasta_files):
+    def __init__(self, fasta_files, minID, maxID):
         """Loads, processes, and converts various input data into the AliTV JSON format.
 
         :param fasta_files: list of FASTA files
@@ -239,9 +239,9 @@ class AliTV:
         self._jsonDict['conf']['graphicalParameters']['treeWidth'] = 200
         self._jsonDict['conf']['graphicalParameters']['genomeLabelWidth'] = 200
 
-        self._jsonDict['conf']['minLinkIdentity'] = 0
-        self._jsonDict['conf']['midLinkIdentity'] = 50
-        self._jsonDict['conf']['maxLinkIdentity'] = 100
+        self._jsonDict['conf']['minLinkIdentity'] = minID
+        self._jsonDict['conf']['midLinkIdentity'] = (minID+maxID)/2
+        self._jsonDict['conf']['maxLinkIdentity'] = maxID
         self._jsonDict['conf']['minLinkIdentityColor'] = '#D21414'
         self._jsonDict['conf']['midLinkIdentityColor'] = '#FFEE05'
         self._jsonDict['conf']['maxLinkIdentityColor'] = '#1DAD0A'
@@ -376,35 +376,15 @@ class AliTV:
         que = None
 
         for key, value in alignment_groups.items():
-            print(key)
 
             for x in self.genomes:
-                print("kezs")
-                print(key[0])
-                print(key[1])
-                print(x.id)
                 if key[0] == x.id:
-                    print(key)
                     tar = x
-                    print(key[0])
                 if key[1] == x.id:
                     que = x
-                    print(key[1])
-                    print(x)
             genome_pairs.append((tar, que))
 
         genome_pairs = tuple(genome_pairs)
-
-        print(len(self.genomes))
-        print("genomes")
-        for x in self.genomes:
-            print(x.id)
-            for y in x.chromosomes:
-                print(y.id)
-        print(len(genome_pairs))
-        print(genome_pairs)
-
-        print([x[0].id for x in genome_pairs])
         for genome_pair in genome_pairs:
             target_genome = genome_pair[0]
             query_genome = genome_pair[1]
