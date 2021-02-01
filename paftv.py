@@ -76,7 +76,7 @@ class PAFAlignment(Alignment):
     """
 
     def __init__(self, query_name, query_len, query_start, query_end, strand, target_name, target_len, target_start,
-                 target_end, matches, length, mapping_quality, tags):
+                 target_end, matches, length, mapping_quality, id, tags):
         """
         :param query_name: Query sequence name
         :type query_name: str
@@ -113,7 +113,11 @@ class PAFAlignment(Alignment):
         else:
             raise ValueError("{} is an invalid PAF alignment strand value.".format(strand))
 
-        identity = (matches / length) * 100
+        ## This is the identity
+        if id != 0:
+            identity = id
+        else:
+            identity = (matches / length) * 100
         super().__init__(query_name, query_start, query_end, target_name, target_start, target_end, identity,
                          strand, length)
 
@@ -135,7 +139,7 @@ class PAFAlignment(Alignment):
     def set_tag(self, key, value):
         self._tags[key] = value
 
-def parse_output_minimap2(output):
+def parse_output_minimap2(output, id):
     """
     :param output: minimap2 stdout
     :type output: io.TextIOBase or io.StringIO
@@ -160,6 +164,9 @@ def parse_output_minimap2(output):
         matches = int(split_line[9])
         length = int(split_line[10])
         mapping_quality = int(split_line[11])
+        id_numb = 0
+        if id:
+            id_numb = float(split_line[12].split(":")[-1])
         tags = {}
 
         if len(split_line) > 12:
@@ -175,8 +182,7 @@ def parse_output_minimap2(output):
                     tags[key] = value
 
         new_alignment = PAFAlignment(query_name, query_len, query_start, query_end, strand, target_name,
-                                     target_len, target_start, target_end, matches, length, mapping_quality,
-                                     tags)
+                                     target_len, target_start, target_end, matches, length, mapping_quality, id_numb, tags)
         alignments.append(new_alignment)
 
     return alignments
@@ -290,8 +296,15 @@ if __name__ == '__main__':
         type = str
     )
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "-i",
+        "--identity",
+        help = "Add this flag if you want to use the identity flag in the paf format",
+        action="store_true"
+    )
 
+    args = parser.parse_args()
+    print(args.identity)
 
     #Make a fasta file list
     paths = tuple([Path(x) for x in args.query])
@@ -329,7 +342,7 @@ if __name__ == '__main__':
                         # print(len(line1))
                         alignment_lists[fasta_files[0].name, fasta_files[1].name]  = [line2.rstrip()]
             for k, v in alignment_lists.items():
-                alignment_groups[k] = parse_output_minimap2(v)
+                alignment_groups[k] = parse_output_minimap2(v, args.identity)
 
 
 
