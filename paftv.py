@@ -283,6 +283,12 @@ if __name__ == '__main__':
         action="store_true"
 
     )
+    parser.add_argument(
+        "-c",
+        "--color",
+        help = "New colors in hex format min, mid, max identity- example: '#D21414,#FFEE05,#1DAD0A",
+        type = str
+    )
 
     args = parser.parse_args()
 
@@ -388,6 +394,7 @@ if __name__ == '__main__':
 
     ## DONT CHANGE ANYTHING HERE
     ali_tv = alitv.AliTV(fasta_files, minId, maxID)
+    ali_tv.changeColors(args.color.split(","))
 
     ali_tv.load_links(alignment_groups)
 
