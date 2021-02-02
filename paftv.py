@@ -396,7 +396,7 @@ if __name__ == '__main__':
 
 
         for k, v in alignment_lists.items():
-            alignment_groups[k] = parse_output_minimap2(v)
+            alignment_groups[k] = parse_output_minimap2(v, args.identity)
 
 
 
@@ -467,7 +467,7 @@ if __name__ == '__main__':
 
 
 
-    ali_tv.load_links(new_alg)
+    ali_tv.load_links(alignment_groups)
 
     ali_tv.set_soft_filters(args.min_link_identity, args.min_link_length)
 
