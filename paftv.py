@@ -17,6 +17,7 @@ from pathlib import Path
 from Bio import SeqIO
 import argparse
 
+import time
 
 
 
@@ -303,7 +304,11 @@ if __name__ == '__main__':
         action="store_true"
     )
 
+
+
     args = parser.parse_args()
+
+
     print(args.identity)
 
     #Make a fasta file list
@@ -407,9 +412,62 @@ if __name__ == '__main__':
 
     ## DONT CHANGE ANYTHING HERE
     ali_tv = alitv.AliTV(fasta_files, minId, maxID)
+    new_alg = {}
+    region = [[args.region.split(":")[0], int(args.region.split(":")[1].split("-")[0]), int(args.region.split(":")[1].split("-")[1])]]
+    print(region)
+    count = 0
+    while (True):
+        f = True
+        if args.region != None:
+            print("jo")
+            print(len(alignment_groups))
+            p = []
+            for k,v in alignment_groups.items():
+                print(k)
+                if new_alg.get(k) == None:
+                    new_alg[k] = []
+                for x in v:
+                    #print(type(x))
+                    for i in region:
+                        if i[0] == x.query_name:
+                            #print("hit1")
+                            if (x.query_start > i[1] and x.query_start < i[2]) or (x.query_end > i[1] and x.query_end < i[2]):
+                                p.append([x.target_name, x.target_start, x.target_end])
+                                new_alg[k].append(x)
+
+
+                        elif i[0] == x.target_name:
+                            #print("hit2")
+                            if (x.target_start > i[1] and x.target_start < i[2]) or (x.target_end > i[1] and x.target_end < i[2]):
+                                #print("hit22")
+                                f = False
+                                p.append([x.query_name, x.query_start, x.query_end])
+                                new_alg[k].append(x)
+                                #print(len(p))
+            print(p)
+            time.sleep(1)
+            region = []
+            region.extend(p)
+            count += 1
+            print(count)
+            print(f)
+            print("keys")
+
+        if f:
+            break
+    print(region)
+    for k,v in new_alg.items():
+        for x in v:
+            print(x.target_name)
+            print(x.query_name)
+
+
+
     ali_tv.changeColors(args.color.split(","))
 
-    ali_tv.load_links(alignment_groups)
+
+
+    ali_tv.load_links(new_alg)
 
     ali_tv.set_soft_filters(args.min_link_identity, args.min_link_length)
 
