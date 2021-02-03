@@ -418,11 +418,8 @@ if __name__ == '__main__':
         while (True):
             f = True
             if args.region != None:
-                print("jo")
-                print(len(alignment_groups))
                 p = []
                 for k,v in alignment_groups.items():
-                    print(k)
                     if new_alg.get(k) == None:
                         new_alg[k] = []
                     for x in v:
@@ -443,13 +440,11 @@ if __name__ == '__main__':
                                     p.append([x.query_name, x.query_start, x.query_end])
                                     new_alg[k].append(x)
                                     #print(len(p))
-                print(p)
+                print(len(p))
                 time.sleep(1)
                 region = []
                 region.extend(p)
                 count += 1
-                print(count)
-                print(f)
                 print("keys")
 
             if f:
@@ -459,10 +454,6 @@ if __name__ == '__main__':
 
 
 
-    for k,v in new_alg.items():
-        for x in v:
-            print(x.target_name)
-            print(x.query_name)
 
 
     minId = 100
@@ -478,9 +469,12 @@ if __name__ == '__main__':
     if args.color != None:
         ali_tv.changeColors(args.color.split(","))
 
+    if args.region != None:
+        ali_tv.load_links(new_alg)
+    else:
+        ali_tv.load_links(alignment_groups)
 
 
-    ali_tv.load_links(alignment_groups)
 
     ali_tv.set_soft_filters(args.min_link_identity, args.min_link_length)
 
