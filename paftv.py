@@ -17,7 +17,26 @@ from pathlib import Path
 from Bio import SeqIO
 import argparse
 
+import filter
+
 import time
+
+
+"""
+TODO: 
+- "Only show transposons"
+    1. Changing to other chromosome
+    2. Changing more than x kb 
+        - Need to know which chromosomes belong together 
+        - We can do this by finding "biggest" alignment 
+        - overlaps 
+    - 
+- gfa2paf
+    - 
+- 
+
+
+"""
 
 
 
@@ -114,6 +133,7 @@ class PAFAlignment(Alignment):
         else:
             raise ValueError("{} is an invalid PAF alignment strand value.".format(strand))
 
+
         ## This is the identity
         if id != 0:
             identity = id
@@ -140,6 +160,22 @@ class PAFAlignment(Alignment):
     def set_tag(self, key, value):
         self._tags[key] = value
 
+
+    # Compare
+    def __eq__(self, other):
+        if not isinstance(other, PAFAlignment):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return self.query_end == other.query_end and \
+               self.query_start == other.query_start and \
+                self.target_start == other.target_start and \
+                self.target_end == other.target_end and \
+                self.target_name == other.target_name and \
+                self.query_name == other.query_name and \
+                self.target_name == other.target_name
+
+
 def parse_output_minimap2(output, id):
     """
     :param output: minimap2 stdout
@@ -148,11 +184,9 @@ def parse_output_minimap2(output, id):
     """
 
     alignments = []
-    #print(output)
     for line in output:
 
         split_line = line.rstrip().split("\t")
-        #print(split_line[0])
         query_name = split_line[0]
         query_len = int(split_line[1])
         query_start = int(split_line[2])
@@ -220,6 +254,8 @@ class Strand(Enum):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    ## ARGUMENT PARSING
 
     parser = argparse.ArgumentParser();
     parser.add_argument(
@@ -293,7 +329,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "-c",
         "--color",
-        help = "New colors in hex format min, mid, max identity- example: '#D21414,#FFEE05,#1DAD0A",
+        help = "Name min, mid and max identity colors in hex format (without #) example 'D21414,FFEE05,1DAD0A",
         type = str
     )
 
@@ -311,19 +347,22 @@ if __name__ == '__main__':
         action="store_true"
     )
 
+    parser.add_argument(
+        "--maxiteration",
+        help = "Number of maximal iteartion in region linking (only works with -r, ignored otherwise)",
+        type = int
+    )
+
 
 
     args = parser.parse_args()
-
-
-    print(args.identity)
 
     #Make a fasta file list
     paths = tuple([Path(x) for x in args.query])
     fasta_files = [FASTAFile(x) for x in paths]
 
     
-    alignment_groups = {}
+    alignment_groups = {}                   #key = Tuple(target, query)
     alignment_lists = {}                    #This one saves the alignments in the same style as alignment groups, but holds a list of strings (lines) as values
     paf = args.paf
 
@@ -358,9 +397,7 @@ if __name__ == '__main__':
 
 
 
-    #
-
-
+    # If you have two distict input files
     else:
         '''
         # This is to find the right FASTA file afterwards
@@ -408,54 +445,24 @@ if __name__ == '__main__':
 
 
 
-    ## DONT CHANGE ANYTHING HERE
+    ## If you define a region, make a new alignment
     new_alg = {}
     count = 0
     if args.region != None:
-        region = [[args.region.split(":")[0], int(args.region.split(":")[1].split("-")[0]),
-                   int(args.region.split(":")[1].split("-")[1])]]
-        print(region)
-        while (True):
-            f = True
-            if args.region != None:
-                p = []
-                for k,v in alignment_groups.items():
-                    if new_alg.get(k) == None:
-                        new_alg[k] = []
-                    for x in v:
-                        #print(type(x))
-                        for i in region:
-                            if i[0] == x.query_name:
-                                #print("hit1")
-                                if (x.query_start > i[1] and x.query_start < i[2]) or (x.query_end > i[1] and x.query_end < i[2]):
-                                    p.append([x.target_name, x.target_start, x.target_end])
-                                    new_alg[k].append(x)
-
-
-                            elif i[0] == x.target_name:
-                                #print("hit2")
-                                if (x.target_start > i[1] and x.target_start < i[2]) or (x.target_end > i[1] and x.target_end < i[2]):
-                                    #print("hit22")
-                                    f = False
-                                    p.append([x.query_name, x.query_start, x.query_end])
-                                    new_alg[k].append(x)
-                                    #print(len(p))
-                print(len(p))
-                time.sleep(1)
-                region = []
-                region.extend(p)
-                count += 1
-                print("keys")
-
-            if f:
-                break
+        region = [[args.region.split(":")[-2], int(args.region.split(":")[-1].split("-")[0]),
+                   int(args.region.split(":")[-1].split("-")[1])]]
+        if args.maxiteration == None:
+            print(1)
+            new_alg = filter.filter_region(alignment_groups, region)
+        else:
+            new_alg = filter.filter_region(alignment_groups, region, args.maxiteration)
 
 
 
 
 
 
-
+    # We calculate the max and min identity
     minId = 100
     maxID = 0
     for k,v in alignment_groups.items():
@@ -465,7 +472,23 @@ if __name__ == '__main__':
             if maxID < x.identity:
                 maxID = x.identity
 
+    #-----------------------------------------------------------------------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Try new functions here:
+    #filter.overlaps(alignment_groups)
+
+    """ 
+    This is Alitv - try not to touch this
+    Changes:
+        - min, max ID in AliTv (maybe change to function)
+        - changeColors function 
+        - If regions given - use new alignment group  #
+        - Removed Order and orient sequence 
+    """
     ali_tv = alitv.AliTV(fasta_files, minId, maxID)
+
+
     if args.color != None:
         ali_tv.changeColors(args.color.split(","))
 

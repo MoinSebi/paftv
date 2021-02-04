@@ -244,7 +244,6 @@ class AliTV:
         self._jsonDict['conf']['midLinkIdentity'] = (minID+maxID)/2
         self._jsonDict['conf']['maxLinkIdentity'] = maxID
 
-        ## TODO Change this
         self._jsonDict['conf']['minLinkIdentityColor'] = '#D21414'
         self._jsonDict['conf']['midLinkIdentityColor'] = '#FFEE05'
         self._jsonDict['conf']['maxLinkIdentityColor'] = '#1DAD0A'
@@ -274,13 +273,11 @@ class AliTV:
 
     def changeColors(self, c):
         o = ["minLinkIdentityColor", "midLinkIdentityColor", "maxLinkIdentityColor"]
-        print(c)
         for index, x in enumerate(c):
-            print(x)
-            if re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', x):
-                self._jsonDict["conf"][o[index]] = x;
+            if re.search(r'(?:[0-9a-fA-F]{3}){1,2}$', x) and len(x) == 6:
+                self._jsonDict["conf"][o[index]] = "#" + x;
             else:
-                print("The hex is not working")
+                print("#{} The hex is not working".format(x))
 
     def optimize_configuration(self):
         """Attempts to optimize AliTV drawing configuration to best display the data"""
