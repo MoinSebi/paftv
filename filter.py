@@ -75,15 +75,41 @@ def filter_region(alg_groups: dict(), region: list, maxit: int = 1000) -> dict()
 def getOverlap(start_end: list, region: list ) -> bool:
     return max(0, min(start_end[1], region[2]) - max(start_end[0], region[1]))
 
+def filter_transpon(t_list: list, gen_dict: dict, alg_groups: dict) -> dict:
+
+    new_alg = dict()
+
+    for k, v in alg_groups.items():
+        new_alg[k] = []
+
+        for alignment in v:
+            if (alignment.query_name == "TAIR10_Chr1_1"):
+                print("hjdahskjda")
+            if alignment.target_name in list(gen_dict.keys()) and alignment.query_name in list(gen_dict.keys()):
+                print(alignment.target_name)
+                if alignment.target_name in t_list[gen_dict[alignment.query_name]]:
+                    new_alg[k].append(alignment)
+        print(len(new_alg[k]))
+
+    return new_alg
+
 
 def getOverlap1(start_end: list, region: list ) -> bool:
     return max(0, min(start_end[1], region[1]) - max(start_end[0], region[0]))
 
 def overlaps(alg_dict: dict()):
+    """
+
+    :param alg_dict:
+    :return:
+    """
+
+    
     """"
     TODO:
      - This will only work with 2 genomes
      - Care of k in alg_dict
+     - Maybe also to able to give list
 
 
      """

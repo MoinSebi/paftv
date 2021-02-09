@@ -1,0 +1,2 @@
+chr1,TIAR10_Chr1,TAIR10_Chr1
+chr2,TIAR10_Chr2,TAIR10_Chr2

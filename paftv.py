@@ -222,6 +222,35 @@ def parse_output_minimap2(output, id):
 
     return alignments
 
+def parseGroups(group_file, xornot):
+    """
+
+    :param group_file:
+
+    name, fastaid1, fastfa2
+    :return:
+    """
+
+    data = dict()
+    with open(group_file) as f:
+        for lines in f.readlines():
+            lsplit = [x.replace("\n","") for x in lines.split(",")]
+            if xornot:
+                p = [x + "_1" for x in lsplit[1:]]
+                data[lsplit[0]] = lsplit[1:] + p
+            else:
+                data[lsplit[0]] = lsplit[1:]
+
+    o = dict()
+    for k,v in data.items():
+        print(v)
+        for x in v:
+            o[x] = k
+
+    return o, data
+
+
+
 class FASTAFile:
     """
     Represents a FASTA file of one or more sequences.
@@ -353,6 +382,12 @@ if __name__ == '__main__':
         type = int
     )
 
+    parser.add_argument(
+        "-g",
+        "--group_list",
+        help = "CSV format - each 'group' (e.g. same chromosome) in one line. Name, fasta_id1, fasta_id2, fasta_id3"
+    )
+
 
 
     args = parser.parse_args()
@@ -456,10 +491,14 @@ if __name__ == '__main__':
             new_alg = filter.filter_region(alignment_groups, region)
         else:
             new_alg = filter.filter_region(alignment_groups, region, args.maxiteration)
+        alignment_groups = new_alg
 
 
-
-
+    if args.group_list != None:
+        new_alg = {}
+        data, gen = parseGroups(args.group_list, args.allvsall)
+        new_alg = filter.filter_transpon(gen, data, alignment_groups)
+        alignment_groups = new_alg
 
 
     # We calculate the max and min identity
@@ -492,10 +531,7 @@ if __name__ == '__main__':
     if args.color != None:
         ali_tv.changeColors(args.color.split(","))
 
-    if args.region != None:
-        ali_tv.load_links(new_alg)
-    else:
-        ali_tv.load_links(alignment_groups)
+    ali_tv.load_links(alignment_groups)
 
 
 
