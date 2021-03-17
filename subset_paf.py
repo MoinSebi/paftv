@@ -37,4 +37,4 @@ def readFasta(fasta_file):
 
 if __name__ == "__main__":
     j, k = readFasta(sys.argv[2:])
-    readPaf(sys.argv[1], j)
+    readPaf(sys.argv[1], j, k)
