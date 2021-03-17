@@ -70,6 +70,17 @@ def filter_region(alg_groups: dict(), region: list, maxit: int = 1000) -> dict()
 
     return new_alg
 
+def reduceAlg(alg_groups: dict) -> dict:
+
+    new_alg_temp = dict()
+
+    for k, v in alg_groups.items():
+        new_alg_temp[k] = sorted(v, key = lambda x: (x.query_name, x.target_name, x.target_start, x.target_end, x.query_start, x.query_end))
+    print(1)
+
+
+
+
 
 
 def getOverlap(start_end: list, region: list ) -> bool:
@@ -84,9 +95,11 @@ def filter_transpon(t_list: list, gen_dict: dict, alg_groups: dict) -> dict:
 
         for alignment in v:
             if (alignment.query_name == "TAIR10_Chr1_1"):
-                print("hjdahskjda")
+                #print("hjdahskjda")
+                pass
+
             if alignment.target_name in list(gen_dict.keys()) and alignment.query_name in list(gen_dict.keys()):
-                print(alignment.target_name)
+                #print(alignment.target_name)
                 if alignment.target_name in t_list[gen_dict[alignment.query_name]]:
                     new_alg[k].append(alignment)
         print(len(new_alg[k]))

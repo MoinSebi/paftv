@@ -459,10 +459,14 @@ if __name__ == '__main__':
             for line1 in f.readlines():
                 split_line = line1.rstrip().split("\t")
                 # print(alignment_lists.get((split_line[5], split_line[0])))
-                query = entry2fasta[split_line[0]]
-                target = entry2fasta[split_line[5]]
+                if entry2fasta.get(split_line[0]) != None:
+                    if entry2fasta.get(split_line[5]) != None:
 
-                all_combinations.add((target, query))
+
+                        query = entry2fasta[split_line[0]]
+                        target = entry2fasta[split_line[5]]
+
+                        all_combinations.add((target, query))
 
                 # Sort out self alignments
                 if query == target:
@@ -479,7 +483,7 @@ if __name__ == '__main__':
 
 
 
-
+    filter.reduceAlg(alignment_groups)
     ## If you define a region, make a new alignment
     new_alg = {}
     count = 0
