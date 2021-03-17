@@ -24,14 +24,14 @@ def readPaf(paf_file, header_pos):
 
 
 def readFasta(fasta_file):
-
     entries = []
-    with open(fasta_file) as f:
-        for line in f.readlines():
-            if line.startswith(">"):
-                entries.append(line[1:].replace("\n", ""))
+    for x in fasta_file:
+        with open(x) as f:
+            for line in f.readlines():
+                if line.startswith(">"):
+                    entries.append(line[1:].replace("\n", ""))
     return  set(entries)
 
 if __name__ == "__main__":
-    j = readFasta(sys[1])
-    readPaf(sys[2], j)
+    j = readFasta(sys.argv[2:])
+    readPaf(sys.argv[1], j)
