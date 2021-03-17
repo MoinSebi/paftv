@@ -18,7 +18,7 @@ def readPaf(paf_file, header_pos):
             if lsplit[0] in header_pos and lsplit[5] in header_pos:
                 paf_file_new.append(line)
     for x in paf_file_new:
-        print(x)
+        print(x.replace("\n", ""))
 
 
 

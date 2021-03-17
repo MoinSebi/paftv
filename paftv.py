@@ -461,21 +461,22 @@ if __name__ == '__main__':
                 # print(alignment_lists.get((split_line[5], split_line[0])))
                 if entry2fasta.get(split_line[0]) != None:
                     if entry2fasta.get(split_line[5]) != None:
+                        if entry2fasta[split_line[0]] != entry2fasta[split_line[5]]:
 
 
-                        query = entry2fasta[split_line[0]]
-                        target = entry2fasta[split_line[5]]
+                            query = entry2fasta[split_line[0]]
+                            target = entry2fasta[split_line[5]]
 
-                        all_combinations.add((target, query))
+                            all_combinations.add((target, query))
 
                 # Sort out self alignments
-                        if query == target:
-                            continue;
-                        else:
-                            if alignment_lists.get((target, query)) != None:
-                                alignment_lists[(target, query)].append(line1.rstrip())
+                            if query == target:
+                                continue;
                             else:
-                                alignment_lists[(target, query)] = [line1.rstrip()]
+                                if alignment_lists.get((target, query)) != None:
+                                    alignment_lists[(target, query)].append(line1.rstrip())
+                                else:
+                                    alignment_lists[(target, query)] = [line1.rstrip()]
 
 
         for k, v in alignment_lists.items():
