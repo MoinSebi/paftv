@@ -201,7 +201,11 @@ def parse_output_minimap2(output, id):
         mapping_quality = int(split_line[11])
         id_numb = 0
         if id:
-            id_numb = float(split_line[12].split(":")[-1])
+            if len(split_line) > 12 and len(set([x for x in split_line[12:] if x.startswith("id")])):
+                id_numb = float(split_line[12].split(":")[-1])
+            else:
+                print("Ignoring id tag - not existing")
+                id = False
         tags = {}
 
         if len(split_line) > 12:
@@ -232,21 +236,20 @@ def parseGroups(group_file, xornot):
     """
 
     data = dict()
+    count = 0
     with open(group_file) as f:
         for lines in f.readlines():
-            lsplit = [x.replace("\n","") for x in lines.split(",")]
+            lsplit = [x.replace("\n","").replace(" ", "") for x in lines.split(",")]
             if xornot:
-                p = [x + "_1" for x in lsplit[1:]]
-                data[lsplit[0]] = lsplit[1:] + p
+                p = [x + "_1" for x in lsplit]
+                data[count] = lsplit + p
             else:
-                data[lsplit[0]] = lsplit[1:]
-
+                data[count] = lsplit
+            count += 1
     o = dict()
     for k,v in data.items():
-        print(v)
         for x in v:
             o[x] = k
-
     return o, data
 
 
@@ -300,7 +303,7 @@ if __name__ == '__main__':
         "--query",
         metavar="query.fa",
         nargs='+',
-        help="FASTA file of query sequence(s). This argument can instead take a single file of file names containing "
+        help="FASTA file of sequence(s). This argument can instead take a single file of file names containing "
              "paths relative to the working directory.",
         required = True
     )
@@ -350,7 +353,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "-X",
         "--allvsall",
-        help = "Add this is you made a all vs all alignment with the same file",
+        help = "Query and the reference are the same (all-vs-all alignment) - only one genome",
         #required=True,
         action="store_true"
 
@@ -365,27 +368,27 @@ if __name__ == '__main__':
     parser.add_argument(
         "-i",
         "--identity",
-        help = "Add this flag if you want to use the identity flag in the paf format",
+        help = "Use the identity flag in the paf format [default: off] (normally computed by alignment length)",
         action="store_true"
     )
 
-    parser.add_argument(
-        "-t",
-        "--transposon",
-        help = "Only show 'jumping' alignments",
-        action="store_true"
-    )
+    # parser.add_argument(
+    #     "-t",
+    #     "--transposon",
+    #     help = "Only show 'jumping' alignments",
+    #     action="store_true"
+    # )
 
     parser.add_argument(
         "--maxiteration",
-        help = "Number of maximal iteartion in region linking (only works with -r, ignored otherwise)",
+        help = "Number of maximal iteration if region linking is used (only works with -r, ignored otherwise)",
         type = int
     )
 
     parser.add_argument(
         "-g",
         "--group_list",
-        help = "CSV format - each 'group' (e.g. same chromosome) in one line. Name, fasta_id1, fasta_id2, fasta_id3"
+        help = "CSV format - each 'group' (e.g. same chromosome) in one line. fasta_entry1, fasta_entry2, fasta_entry3 --> Check examples"
     )
 
 
@@ -492,7 +495,6 @@ if __name__ == '__main__':
         region = [[args.region.split(":")[-2], int(args.region.split(":")[-1].split("-")[0]),
                    int(args.region.split(":")[-1].split("-")[1])]]
         if args.maxiteration == None:
-            print(1)
             new_alg = filter.filter_region(alignment_groups, region)
         else:
             new_alg = filter.filter_region(alignment_groups, region, args.maxiteration)

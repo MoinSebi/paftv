@@ -6,9 +6,7 @@ Created on 2/4/21
 @author: moinSebi
 
 """
-import paftv
 import sys
-import itertools
 
 """
 TODO: 
@@ -34,30 +32,35 @@ def readGFA(file_gfa: str):
             if line.startswith("S"):
                 lsplit = line.split()
                 nodes[lsplit[1]]  = len(lsplit[2])
-    return paths
+    return paths, nodes
 
+def plus(s):
+    return "+" == s[-1]
 
-def find1(dict1):
-    o = []
-    o2 = []
-    for k,v in dict1:
-        v2 = []
-        o.append(v)
+def nodePos(paths: dict(), nodes = dict()):
+    pos = 0
+    n2 = dict()
+    for k, v in paths.items():
+        pos = 0
+        n  = dict()
+        n2[k] = n
+
         for x in v:
-            if v.count(x) < 0:
-               v2.append(x)
+            if n.get(x[:-1]) == None:
+                n[x[:-1]] = [[plus(x), pos, pos+int(nodes[x[:-1]])]]
+            else:
+                n[x[:-1]].append([plus(x), pos, pos+int(nodes[x[:-1]])])
+            pos += nodes[x[:-1]]
+    return n2
 
-        o2.append(v2)
+def writePaf()
 
-    j2 = dict()
-    for i, j in itertools.combinations(o2,2):
-        j2[(i,j)] = set(set(i) - set(j))
-
-    for i,j in itertools.combinations(o,2)
-        i1 = 0
-        i2 = 0
 
 
 
 if __name__ == "__main__":
-    readGFA(sys.argv[1])
+    print(sys.argv[1])
+    p, n = readGFA(sys.argv[1])
+    o = nodePos(p, n)
+    print(len(o))
+
