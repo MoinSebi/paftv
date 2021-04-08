@@ -8,7 +8,7 @@ It is now now possible to use your own alignment in the PAF format.
 - python3.5 or higher
 - biopython
 
-```bash
+```
 git clone https://github.com/MoinSebi/paftv
 pip install biopython
 ```
@@ -19,12 +19,12 @@ pip install biopython
 ### usage 
 
 #### Basic + Help: 
-```bash
+```
 minimap2 seq1.fasta seq2.fasta > aln.paf
 paftv.py -p aln.paf -q seq1.fasta seq2.fasta -o out.json
 ```
 
-```bash
+```
 paftv.py -h 
 usage: paftv.py [-h] -p paf -q query.fa [query.fa ...] [-r REGION]
                 [--min_link_identity MIN_LINK_IDENTITY] [--min_link_length MIN_LINK_LENGTH]
@@ -69,7 +69,7 @@ optional arguments:
 
 
 #### Example 1 - All-vs-all 
-```bash
+```
 cat AAA.fasta AAB.fasta YCT.fasta CAA.fasta > seq.fasta
 minimap2 seq.fasta seq.fasta -X > aln.paf
 paftv.py -p aln.paf -X -q seq.fasta -o out.json
@@ -77,21 +77,21 @@ paftv.py -p aln.paf -X -q seq.fasta -o out.json
 
 #### Example 2 - All-vs-all but with a subsetted view
 Comment: You are only interested in AAA.fasta and AAB.fasta (or you need a smaller file)
-```bash
+```
 cat AAA.fasta AAB.fasta YCT.fasta CAA.fasta > seq.fasta
 minimap2 seq.fasta seq.fasta -X > aln.paf
 paftv.py -p aln.paf -q AAA.fasta AAB.fasta -o out.json
 ```
 
 #### Example 3 - Check a specific region
-```bash
+```
 minimap2 AAA_CAA.cat.fasta YCT_AAB.cat.fasta  > aln.paf
 paftv.py -p aln.paf -q AAA_CAA.cat.fasta YCT_AAB.cat.fasta  -o out.json -r AAA_6:10000-20000 --maxiteration 5 
 ```
 
 
 #### Exmaple 4 - Only show moving alignments (to other chromosomes)
-```bash
+```
 minimap2 AAA_CAA.cat.fasta YCT_AAB.cat.fasta  > aln.paf
 paftv.py -p aln.paf -q AAA_CAA.cat.fasta YCT_AAB.cat.fasta  -o out.json -g group_example.txt
 ```
