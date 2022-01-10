@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# https://github.com/ekg/seqwish/blob/master/scripts/pan-minimap2
+
+
+while [[ "$@" != "" ]];
+do
+    minimap2 -t 5 -cx asm20 $@
+    shift
+done
