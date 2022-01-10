@@ -19,6 +19,11 @@ python3 setup.py install
 paftv -h 
 ```
 
+Conda: 
+```
+conda install -c svorbrugg paftv
+paftv -h 
+```
 
 
 ### Usage 
@@ -89,4 +94,6 @@ If the file is too big, this might crash you browser.
 ### Filter PAF file with [**fpa**](https://github.com/natir/fpa)  
 
 Example:
- >  cat aln.paf | fpa drop -l 200 - > aln.bigger200.paf 
+```
+cat aln.paf | fpa drop -l 200 - > aln.bigger200.paf 
+```
